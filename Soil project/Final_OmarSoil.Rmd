@@ -1,0 +1,112 @@
+---
+title: "Soil_Omar"
+author: "Omar Godinez"
+date: "4/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+Necessary libraries to start working.
+```{r}
+library(tidyverse)
+```
+
+# Step 1: Load files
+It is necessary to download the four files before start.
+Here we load and assign a name to each one of them.
+```{r}
+SoilData_1 <- read_csv("data/Soil_1.csv")
+SoilData_2 <- read_csv("data/Soil_2.csv")
+SoilData_2 <- SoilData_2 %>% rename(vial = Core)
+Soil_key_1 <- read_csv("data/Soil_Core_Key.csv")
+Soil_key_1 <- Soil_key_1 %>% rename(Core = core)
+Soil_key_2 <- read_csv("data/partitioned_key.csv")
+```
+
+# Step 2: Clean the data
+Remove empty rows, join the data with the new keys, and create an index along with other new variables.
+In simple words, prepare the data sets to start working.
+```{r}
+SoilData_1 <- SoilData_1[rowSums(is.na(SoilData_1)) != ncol(SoilData_1),]  #Remove rows with only NAs
+SoilData_1 <- SoilData_1[-c(122),]                                         #Remove no measured week
+SoilData_1 <- left_join(SoilData_1,Soil_key_1, by = "Core")                #Join both data
+SoilData_1 <- subset(SoilData_1, select = -c(Treatment))                   #Remove the extra treatment
+SoilData_1 <- SoilData_1 %>% rename(Treatment = treatment)                 #Rename Treatment
+SoilData_1 <- SoilData_1 %>% mutate(CCO2 = (mmol_air*CO2_ppm*10^(-3)*12))               #Creates new variable
+SoilData_1 <- unite(SoilData_1, Type.TRTMT, type, Treatment, sep = "_", remove = FALSE) #Uniting Type and treatment
+SoilData_1 <- unite(SoilData_1, TempType, type, Treatment, sep = "_", remove = FALSE)
+SoilData_1 <- SoilData_1 %>% group_by(TempType) %>%  mutate(index = row_number())     #Creating index number
+
+SoilData_2 <- SoilData_2[rowSums(is.na(SoilData_2)) != ncol(SoilData_2),]            #Remove rows with only NAs
+SoilData_2 <- filter(SoilData_2, Layer != "mineral extra test")                                              #Remove mineral extra tests
+SoilData_2 <- SoilData_2[SoilData_2$vial != "1C extra", ]                            #Remove 1c extra
+SoilData_2 <- left_join(SoilData_2,Soil_key_2, by = "vial")                          #Join both data
+SoilData_2 <- SoilData_2 %>% mutate(CCO2 = (partition_mmol_air*CO2_ppm*10^(-3)*12))  #Creates new variable
+SoilData_2 <- unite(SoilData_2, Vial.Layer, vial, Layer, sep = "_", remove = FALSE)  #Uniting Core and Layer
+SoilData_2 <- SoilData_2 %>% group_by(Vial.Layer) %>%  mutate(index = row_number())  #Creating index number
+SoilData_2 <- SoilData_2 %>% mutate(LayerCond = ifelse(Layer == "mineral", "Mineral", ifelse(Layer == "organic" | Layer == "organic bottom" | Layer == "organic top", "Organic", ifelse(Layer == "plant", "Plant", NA))))        #Groups all organic layers
+
+```
+
+# Step 3: Summaries
+A look to the joined data.
+```{r}
+summary(SoilData_1)
+summary(SoilData_2)
+```
+
+# Analyze CORE SOIL DATA
+
+# Step 4: CCO2 analysis
+```{r}
+SoilData_1 %>% group_by(Treatment, type) %>% summarize(size = n(), mean = mean(CCO2), median = median(CCO2), st.dev = sd(CCO2), IQR = IQR(CCO2), min = min(CCO2), max = max(CCO2))
+boxplot(SoilData_1$CCO2~SoilData_1$Treatment, main="CCO2 by treatment", xlab="Treatment", ylab = "CCO2")
+boxplot(SoilData_1$CCO2~SoilData_1$Type.TRTMT, main="CCO2 by type/treatment", xlab="Type/Treatment", ylab = "CCO2")
+ggplot(data = SoilData_1) +
+  geom_smooth(mapping = aes(x = index, y = CCO2, color = Type.TRTMT )) + 
+  ggtitle("CCO2's plot by type/treatment") +xlab("Index") + ylab("CCO2")
+```
+
+# Step 5: CO2_ppm analysis
+```{r}
+SoilData_1 %>% group_by(Treatment, type) %>% summarize(size = n(), mean = mean(CO2_ppm), median = median(CO2_ppm), st.dev = sd(CO2_ppm), IQR = IQR(CO2_ppm), min = min(CO2_ppm), max = max(CO2_ppm))
+boxplot(SoilData_1$CO2_ppm~SoilData_1$Treatment, main="CO2_ppm by treatment", xlab="treatment", ylab = "CO2_ppm")
+boxplot(SoilData_1$CO2_ppm~SoilData_1$Type.TRTMT, main="CO2_ppm by type/treatment", xlab="type/treatment", ylab = "CO2_ppm")
+ggplot(data = SoilData_1) +
+  geom_smooth(mapping = aes(x = index, y = CO2_ppm, color = Type.TRTMT )) + 
+  ggtitle("CO2_ppm's plot by type/treatment") + xlab("Index") + ylab("CO2_ppm")
+```
+
+# Analyze Layer SOIL DATA
+
+# Step 6: CCO2 analysis
+```{r}
+SoilData_2 %>% group_by(Treatment, Layer) %>% summarize(size = n(), mean = mean(CCO2), median = median(CCO2), st.dev = sd(CCO2), IQR = IQR(CCO2), min = min(CCO2), max = max(CCO2))
+boxplot(SoilData_2$CCO2~SoilData_2$Layer, main="CCO2 by layer", xlab="Layer", ylab = "CCO2")
+boxplot(SoilData_2$CCO2~SoilData_2$Vial.Layer, main="CCO2 by vial/layer", xlab="Vial/Layer", ylab = "CCO2")
+boxplot(SoilData_2$CCO2~SoilData_2$LayerCond, main="CCO2 by layer group", xlab="Group", ylab = "CCO2")
+ggplot(data = SoilData_2) +
+  geom_smooth(mapping = aes(x = index, y = CCO2, color = LayerCond)) + 
+  ggtitle("CCO2's plot by layer group") +xlab("Index") + ylab("CCO2")
+ggplot(SoilData_2, aes(LayerCond, CCO2, fill = LayerCond)) + geom_bar(stat = 'identity') + 
+  ggtitle("CCO2's generated") +xlab("Group") + ylab("CCO2")
+ggplot(SoilData_2) + geom_histogram(mapping = aes(x = CCO2)) + facet_wrap(~LayerCond)
+```
+
+# Step 7: CO2_ppm analysis
+```{r}
+SoilData_2 %>% group_by(Treatment, Layer) %>% summarize(Size = n(), mean = mean(CO2_ppm), median = median(CO2_ppm), st.dev. = sd(CO2_ppm), IQR = IQR(CO2_ppm), min = min(CO2_ppm), max = max(CO2_ppm))
+boxplot(SoilData_2$CO2_ppm~SoilData_2$Layer, main="CO2_ppm by layer", xlab="Layer", ylab = "CO2_ppm")
+boxplot(SoilData_2$CO2_ppm~SoilData_2$Vial.Layer, main="CO2_ppm by vial/layer", xlab="Vial/Layer", ylab = "CO2_ppm")
+boxplot(SoilData_2$CO2_ppm~SoilData_2$LayerCond, main="CO2_ppm by layer group", xlab="Group", ylab = "CO2_ppm")
+ggplot(data = SoilData_2) +
+  geom_smooth(mapping = aes(x = index, y = CO2_ppm, color = LayerCond)) + 
+  ggtitle("CO2_ppm's plot by layer group") +xlab("Index") + ylab("CO2_ppm")
+ggplot(SoilData_2, aes(LayerCond, CO2_ppm, fill = LayerCond)) + geom_bar(stat = 'identity') + 
+  ggtitle("CO2_ppm's generated") +xlab("Group") + ylab("CO2_ppm")
+ggplot(SoilData_2) + geom_histogram(mapping = aes(x = CO2_ppm)) + facet_wrap(~LayerCond)
+```

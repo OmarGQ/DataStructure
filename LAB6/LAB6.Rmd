@@ -1,0 +1,57 @@
+---
+title: "LAB6"
+author: "Omar Godinez"
+date: "3/4/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+attach(cars)
+head(cars)
+plot(cars)
+plot(cars$speed, cars$dist)
+cor(cars)
+mx <- cor(cars$speed, cars$dist)
+mx*mx
+```
+
+```{r}
+model1 <- lm(dist~speed) #lm linear model
+model1
+summary(model1)
+```
+y^ = B0+B1 x
+y^ = -17.58+9.3 x   x=speed
+
+# what if B1 = 0   There is no relation between them
+
+Population idea Y = B0 + B1 x + Error
+b0 is an estimate for B0
+b1 is an estimate for B1
+y^ = 
+```{r}
+anova(model1)
+```
+
+```{r}
+sd(cars$dist)
+sqrt((21186 + 11354)/49)
+```
+
+```{r}
+plot(cars)
+abline(model1)
+```
+
+```{r}
+attach(iris)
+modeliris <- lm(formula = iris$Sepal.Length~iris$Sepal.Width + iris$Species)
+summary(modeliris)
+```
+

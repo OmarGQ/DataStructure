@@ -1,0 +1,86 @@
+---
+title: "Salaries"
+author: "Omar Godinez"
+date: "4/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(carData)
+library(tidyverse)
+library(broom)
+```
+
+Introduction -Why you care?
+Q = Quantitative, C = categorical
+Response Variable(DV) -> Salary Q
+Explanatory Variable(IV) -> sex C (2levels), discipline C (2levels), rank C (3 levels), yrs.since.PhD Q, yrs.service Q
+
+Salary vs sex
+```{r}
+Salaries %>% group_by(sex) %>% summarise(Number = n(), Mean = mean(salary), Median = median(salary), SD = sd(salary), IQR = IQR(salary))
+boxplot(Salaries$salary~Salaries$sex)
+```
+
+
+Linear model
+```{r}
+model <- lm(Salaries$yrs.service~Salaries$salary)
+summary(model)
+anova(model)
+plot(Salaries$yrs.service, Salaries$salary)
+abline(model)
+```
+
+Salary vs yrs.service and rank
+```{r}
+ggplot(data = Salaries) +
+  geom_point(mapping = aes(x = yrs.service, y = salary, color = rank, shape = sex))
+
+ggplot(data = Salaries) +
+  geom_point(mapping = aes(x = yrs.service, y = salary)) +
+  facet_grid(rank ~ sex)
+
+ggplot(data = Salaries) +
+  geom_point(mapping = aes(x = yrs.service, y = salary)) +
+  facet_grid(discipline ~ rank)
+```
+
+Regression model
+```{r}
+model <- lm(salary ~ yrs.since.phd, data = Salaries)
+
+model.diag.metrics <- augment(model)
+
+ggplot(model.diag.metrics, aes(yrs.since.phd, salary)) +
+  geom_point() +
+  stat_smooth(method = lm, se = FALSE) +
+  geom_segment(aes(xend = yrs.since.phd, yend = .fitted), color = "red", size = 0.3)
+
+```
+
+Rank 
+```{r}
+attach(Salaries)
+model1 <- lm(salary~yrs.service) #lm(prediction, predictor)
+summary(model1)
+model2 <- lm(salary~rank)
+summary(model2)
+model3 <- lm(salary~yrs.service*rank)
+summary(model3)
+model4 <- lm(salary~yrs.since.phd)
+summary(model4)
+model5 <- lm(salary~sex*rank)
+summary(model5)
+```
+
+```{r}
+boxplot(salary~rank)
+Salaries %>% group_by(rank) %>% summarise(num = n(), mean = mean(salary), median = median(salary), sd = sd(salary), IQR = IQR(salary))
+```
+
+

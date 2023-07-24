@@ -1,0 +1,187 @@
+---
+title: "Student File for Decision Tree"
+author: "ME Bond"
+date: "April 23, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Student File for Decision Tree
+# Titanic Example
+
+# Create necessary library code chunk
+```{r}
+library(dplyr)
+library(datasets)
+library(caTools)
+library(party)
+#library(margrittr)
+library(rpart)
+library(rpart.plot)
+```
+
+
+# Step 1, Get the data
+
+
+Go to
+https://raw.githubusercontent.com/guru99-edu/R-Programming/master/titanic_data.csv 
+
+
+
+* Assign path to this URL
+* create titanic (lower case t !) using read.csv(path)
+* Look at titanic and observe the variables etc.
+    **use glimpse(titanic) or head(titanic)**
+    
+```{r}
+path <- "https://raw.githubusercontent.com/guru99-edu/R-Programming/master/titanic_data.csv"
+titanic <- read.csv(path)
+```
+
+_New r chunk for the next steps_
+
+* set.seed(678)
+* shuffle the data because it has an order.  What is the order?
+
+  1.  Create a shuffle_vector
+  2.  Order titanic using the shuffle_vector
+      * Recall how one could use [] and [ , ] titanic[ , ]
+      * verify that titanic has changed
+      
+```{r}
+set.seed(678)
+rows <- sample(nrow(titanic))
+titanic <- titanic[rows, ]
+```
+
+
+
+# Step 2, Clean the data set
+
+
+* Keep these variables **pclass, survived, sex, age, sibsp, parch, fare, embarked** _BY removing 5 variables._
+*  Create factor variables for pclass and survived
+* Change the class of the variable *age* and *fare* to numeric
+* Drop the NA's    **the command from webpage doesn't work**
+
+```{r}
+titanic <- titanic %>% select(-c(home.dest, cabin, name, x, ticket)) %>% mutate(pclass = factor(pclass, levels = c(1,2,3), labels = c('Upper', 'Middle', 'Lower')), survived = factor(survived, levels =c(0, 1), labels = c('Died', 'Survived'))) %>% na.omit()
+titanic[,4] <- as.numeric(as.character(titanic[,4]))
+titanic[,7] <- as.numeric(as.character(titanic[,7]))
+#clean_titanic %>% drop_na()
+titanic <- na.omit(titanic)
+glimpse(titanic)
+```
+
+
+**Check the number of rows and columns of your clean_titanic**
+Does it match the webpage dimensions?
+
+
+
+
+
+
+# Step 3,Create train/test set
+
+  * Creat a train and test set (80/20 split)
+
+
+
+  
+##  First we will  **Create a function that will split the df**
+
+```{r}
+#Train <- function(df, Split = 0.8, tr=TRUE) {
+#  train <- sample.split(df, SplitRatio = Split)
+#  if (tr == TRUE) {
+#    return(subset(df, train == TRUE)) 
+#  }else{
+#    return(subset(df, train == FALSE))
+#  }
+#}
+Train <- function(data, size = 0.8, train = TRUE) {
+    n_row = nrow(data)
+    total_row = size * n_row
+    train_sample <- 1: total_row
+    if (train == TRUE) {
+        return (data[train_sample, ])
+    } else {
+        return (data[-train_sample, ])
+    }
+}
+
+```
+
+## *The function from the webpage will need to be debugged, and you should test your function in the Console before continuing*
+
+
+
+* Obtain and verify the training and testing dataframes
+
+```{r}
+data_train <- Train(titanic)
+data_test <- Train(titanic, 0.8, FALSE)
+head(data_train)
+dim(data_train)
+dim(data_test)
+prop.table(table(data_train$survived))
+prop.table(table(data_test$survived))
+```
+
+
+
+
+* Install rpart and rpart.plot
+
+
+# Step 4, Build the model
+
+* create the "fit" model
+* Get a plot and understand the plot _webpage may have errors in code_
+
+
+_to get the rpart.plot() to plot), just rpart.plot(fit)_
+
+```{r}
+fit <- rpart(survived~., data = data_train, method = 'class')
+rpart.plot(fit, extra = 106)
+```
+
+
+
+# Step 5, Make a prediction 
+
+* predict using test set  _understand predict unseen_
+* Create a table to analyze your predictions
+
+* Understand the table
+```{r}
+prediction <-predict(fit, data_test, type = 'class')
+table <- table(data_test$survived, prediction)
+table
+```
+
+
+# Step 6, Measure performance
+
+* Calculate and understand accuracy of your model
+```{r}
+accuracy_Test <- sum(diag(table)) / sum(table)
+print(paste('Accuracy for test', accuracy_Test))
+```
+
+
+## This is the end of the lab
+
+
+## For extra credit, do step 7, tune the hyper-parameters
+
+# Step 7, Tune the hpyer-parameters
+
+
+
