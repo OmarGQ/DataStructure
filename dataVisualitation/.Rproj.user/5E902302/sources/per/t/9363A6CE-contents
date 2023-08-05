@@ -1,0 +1,104 @@
+---
+title: "ProyectDiamond"
+author: "OmarG"
+date: "February 18, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+data(diamonds)
+summary(diamonds)
+dim(diamonds)
+```
+
+The order factor variable are cut, color, and clarity.
+
+```{r}
+ggplot(data=diamonds) + geom_histogram(binwidth=500, aes(x=diamonds$price)) + ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$") + ylab("Frequency") + theme_minimal()
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x =price)) + geom_histogram(binwidth = 500, color ="white") + ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$") + ylab("Frequency") + theme_minimal()
+```
+ 
+ This is a right skewed histogram, we can observe that most of the observations are below the 5000$ mark.
+ Now lets take a look to the mean and median.
+
+```{r}
+diamonds %>% summarize(mean = mean(diamonds$price), median = median(diamonds$price))
+```
+Now lets supposed we want to know the following:
+
+    -How many cost less than U$500?
+    -How many cost less than U$250?
+    -How many cost equal to U$15,000 or more?
+
+```{r}
+diamonds %>% summarize(less_than_250 = sum(diamonds$price < 250), less_than_500 = sum(diamonds$price < 500), more_than_15000 = sum(diamonds$price >= 15000),)
+```
+
+# Let’s get closer to that peak
+We have a very notorious peak in the histogram. So, let's get close to observe it.
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + geom_histogram(binwidth = 500, color = "white") + ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$ - Binwidth 500") + ylab("Frequency") + theme_minimal() + xlim(0,2500)
+```
+
+A little too square? The binwidth is definitively not the best, as we set it at 500 and put a limit of value to less than U$2,500. To solve this, we should lower the binwidth to see how that changes the picture:
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + geom_histogram(binwidth = 100, color = "white") + ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$ - Binwidth 500") + ylab("Frequency") + theme_minimal() + xlim(0,2500)
+```
+
+It looks better, right. By changing binwidth=100 the frequency dropped from 10,000 to 2,000 in diamonds between $500 and $1,000. Let’s try it again but this time we will change bidwith to 50:
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + geom_histogram(binwidth = 50, color = "white") + ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$ - Binwidth 500") + ylab("Frequency") + theme_minimal() + xlim(0,2500)
+```
+
+And we have another drop in frequency, this time it drooped to 1500. That is the reason Data Scientist are actual people and RStudio and R haven’t taken over!
+  bin along with others functions will have a important role in the visualization of your graph
+  
+This is time to increase the challenge. What do you think about have five histograms, broken down by cut? That can sounds complicated, but this is not the case with R and ggplot2. Using the facet_wrap(~cut) command is almost too easy to produce the graphs:
+```{r}
+ggplot(data=diamonds, mapping = aes(x = price)) + geom_histogram(binwidth=100, color="black") + ggtitle("Diamond Price Distribution by Cut") + xlab("Diamond Price U$") + ylab("Frequency") + theme_minimal() + facet_wrap(~cut)
+```
+
+Now that I see these graphs, I am wondering which is the highest and lowest priced diamond? This one is a little tricky, but the easiest way is to subset the diamonds data using as the filter the logical expression max(price) and min(price). It is unusual but it works.
+```{r}
+subset(diamonds, price == max(price))
+```
+```{r}
+subset(diamonds, price == min(price))
+```
+
+And the answer for the first question is Premium cut for a diamond of 2.29 carat that sold at U18,823! Getting the cut of the lowest priced diamond is a similar task. And we have a tie for the lowest priced diamond, both sold at U326, one of 0.23 carat and Ideal cut, and another of 0.21 carats and Premium cut.
+
+The last question is which cut has the lowest median price. This one is VERY tricky, since it involves lots of query in the data. The long and easy way is to use the which command to subset data vectors and then get the median of those:
+```{r}
+diamonds %>% group_by(cut) %>% summarize(median = median(price))
+```
+
+Going back to our grid histogram, let’s get different frequency scales (the y axis) to accomodate for specific patterns. SOmetimes it is harder to see patterns if all five charts use the same scale for comparison and patterns become lost in the translation. The command is very easy.
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + geom_histogram(binwidth=100, color="black") + ggtitle("Diamond Price Distribution by Cut") + xlab("Diamond Price U$") + ylab("Frequency") + theme_minimal() + facet_wrap(~cut, scales="free_y")
+
+```
+
+
+Now you can see how different graphs have different Y scales. For example Fair cut diamonds have a Y scale maximizing at 600, while Ideal diamonds have a Y scale topping at 2,500. This is just the effect of using scale="free_y" in the facet_wrap layer.
+
+Let’s do another example, this time working on plotting price per carat of different cuts.
+```{r}
+ggplot(data=diamonds, mapping = aes(x = price/carat)) + geom_histogram(binwidth=50, color="black") + ggtitle("Diamond Price per Carat Distribution by Cut") + xlab("Diamond Price per Carat U$") + ylab("Frequency") + theme_minimal() + facet_wrap(~cut)
+```
+
+UDACITY also asks for log10 scale. Let’s work now on plotting price per carat of different cuts and using Log10.
+```{r}
+ggplot(data=diamonds, mapping = aes(x = price/carat)) + geom_histogram(binwidth=0.01, color="black") + ggtitle("Diamond Price per Carat Distribution by Cut") + xlab("Diamond Price per Carat U$ - LOG 10 Scale") + ylab("Frequency") + theme_minimal() + facet_wrap(~cut) + scale_x_log10()
+```
+
+It’s easier to see how price per carat raises with cut quality. Notice how I change the bin size to make sense on Log10 scale (else it look terrible…)

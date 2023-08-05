@@ -1,0 +1,238 @@
+---
+title: "Lab4 STAT 100 Project"
+author: "ME Bond"
+date: "February 17, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# 1. Randomly Generate Variables
+
+
+# 2. Make a Single Graph
+
+
+# 3. Place Graphs in panals
+
+
+# 4. Supply summary statistics
+
+# 1. Randomly Generate Variables
+
+  * Sample size = 40
+  * Ranging from 0 to 100
+  * At least 4 variables
+
+## Variable A
+
+###  A)  Symmetric, Normal, mean = 50 and st dev = 15
+
+## Variable B
+ 
+### B) Severely skewed to left such that the mean is less than median
+ 
+## Variable C
+
+### C) U-shaped distribution
+
+## Variable D
+
+### D) Uniform from 0 to 100
+
+## Variable E
+
+### E) Variable E -- an interesting shape of some kind
+```{r}
+A <- rnorm(40,50,15)
+B <- rnorm(40,80,15)
+D <- range(1,100)
+```
+
+# Information on various distributions
+ 
+ The Binomial distribution counts the number of successes in k number of trials
+ in which, the trials are independent and have probability of succuss = p.
+ 
+ For example, if you roll a die 50 times and count the number of 1's and 6's,
+ you will have one sample of a Binomial (k = 50 and p = 1/3)
+ 
+ So to create a column of random Binomial(k = 50, p = 1/3) with **40 values**, 
+ 
+ you would roll the die 50 times, count the number of 1's and 6's
+ 
+ roll the die 50 times, count the number of 1's and 6's
+ 
+ roll the die 50 times, count the number of 1's and 6's
+ 
+ ...
+ 
+ repeat until you have **40 values** of 50 rolls in which 
+ 
+ you are counting the number of 1's and 6's.
+ 
+ HOWEVER, we will want k = 100, Why?  Binomial counts number of 
+ successes in k trials.  So possible Binomial values will be 
+ between ? and ?
+ 
+### Obviously, we don't want to simulate 
+### 40 rows of a Binomial (k = 100, p = 1/3), 
+### So we will use R!
+ 
+ So X ~ B(k,p) is the notation that probabilists would use.
+ They would say X is distributed Binomial k p
+ 
+  We are randomly sampling 40 values from the distribution of X. 
+ 
+ What is the mean (Expected Value) of a Binomial(k,p)? 
+ 
+ mu = E[X] = k*p
+ 
+ What is the Variance of a Binomial(k,p)? 
+ 
+ sigma^2^ = Var(X) = kp(1-p)
+ 
+ So what would the standard deviation be?
+ 
+ 
+    ## Now calculate in the **R Studio Console** the value
+    ## of mu and sigma for  X ~ B(100,1/3)
+    
+    
+    ### Go to the .Rmd file that created **this** HTML file 
+    ### and change the .Rmd file with your answer  
+    ### THEN KNIT the .Rmd file and continue
+    
+    
+    IF you would like to make a box around your answer.
+    Tab twice and type.  That's how I made this box.
+    
+    Don't forget to KNIT before you continue
+-
+    mu = 100 * 1/3 = 33.333
+
+## Let's simulate some Binomials  
+
+
+ 
+```{r}
+xbinom <- rbinom(40,700,1/3) # Generate 40 random Binomials with k = 100 and p = 1/3
+hist(xbinom)  # Make the histogram of xbinom
+summary(xbinom) # Create the 5 number summary and the mean
+sd(xbinom)  # need the standard deviation too.  IQR = Q3 - Q1
+```
+
+
+## How do we change the shape of a Binomial?  
+
+## By changing the values of p, of course!
+
+# BUT FIRST, Let's make a table in R Markdown
+
+    When I was learning R and R Markdown, I created this table.
+    Anytime that I need a table since then, I find this code; 
+    copy and paste; And build any new table from it.
+    
+    |Subject | Total Files | Opponent | Date |
+    |---------:|-------:|--------:|--------:|
+    | 1:6 |6 | Wheaton	| Sep 1 2018|
+    | 1:8 |8 |Wartburg	|Sep 8 2018|
+    |1:6, 8| 7| Macalester	|Sep 22 2018|
+    |1:4, 6:8| 7|Lawrence	|Sep 29 2018|
+    |1:4, 6:9|8 |Grinnell	|Oct 6 2018|
+    |none |0 |Illinois College	|Oct 13 2018|
+    |1:8 |8 |Cornell	|Oct 20 2018|
+    |1:8 |8 |Lake Forest	|Oct 27 2018|
+    |1:8 |8 |Knox	|Nov 3 3018
+    |1:8 |8 |St Norbert	|Nov 10 2018|
+
+|Subject | Total Files | Opponent | Date |
+|---------:|-------:|--------:|--------:|
+| 1:6 |6 | Wheaton	| Sep 1 2018|
+| 1:8 |8 |Wartburg	|Sep 8 2018|
+|1:6, 8| 7| Macalester	|Sep 22 2018|
+|1:4, 6:8| 7|Lawrence	|Sep 29 2018|
+|1:4, 6:9|8 |Grinnell	|Oct 6 2018|
+|none |0 |Illinois College	|Oct 13 2018|
+|1:8 |8 |Cornell	|Oct 20 2018|
+|1:8 |8 |Lake Forest	|Oct 27 2018|
+|1:8 |8 |Knox	|Nov 3 3018
+|1:8 |8 |St Norbert	|Nov 10 2018|
+
+
+    Your task is to create a table with at least two columns.
+    The first column is to be labeled "p" and the second "shape"
+    
+    Now explore in R Studio what happens to the shape of the Binomial
+    when p is close to zero, p == 0.5, p is close to 1.
+    
+    That is, reproduce R Code with different values of p besides 1/3
+    
+    You decide how many of resulting output histograms and summary stats
+    that you keep 
+    
+    In your table, list at least 4 p's and the corresponding shape
+    
+|P | Shape |
+|---------:|-------:|
+|0 | Uniform |
+|0.1 | Right skewed |
+|0.3 | Symmetric | 
+|0.5 | Symmetric |
+|0.7 | lightly Left skewed |
+|0.9 | Left skewed |
+|1 | Uniform |
+
+
+# **Go on to step 2 after you knitted to check out your table**
+ 
+ 
+ 
+# 2. Make a Single Graph
+
+
+## Go to [R Graph Gallery](https://www.r-graph-gallery.com/index.html) 
+## and **explore for 5 minutes or so.**
+
+## Go to this part of the website: [histogram and boxplot](https://www.r-graph-gallery.com/82-boxplot-on-top-of-histogram.html).
+
+
+
+
+##  * Insert an R chunk
+##  * Copy and paste the code
+##  * Run it
+
+```{r}
+# Create data 
+my_variable=c(rnorm(1000 , 0 , 2) , rnorm(1000 , 9 , 2))
+ 
+# Layout to split the screen
+layout(mat = matrix(c(1,2),2,1, byrow=TRUE),  height = c(1,8))
+ 
+# Draw the boxplot and the histogram 
+par(mar=c(0, 3.1, 1.1, 2.1))
+boxplot(my_variable , horizontal=TRUE , ylim=c(-10,20), xaxt="n" , col=rgb(0.8,0.8,0,0.5) , frame=F)
+par(mar=c(4, 3.1, 1.1, 2.1))
+hist(my_variable , breaks=40 , col=rgb(0.2,0.8,0.5,0.5) , border=F , main="" , xlab="value of the variable", xlim=c(-10,20))
+```
+
+### ** Isn't R wonderful! **
+  
+# Save this .Rmd file so that you can retrieve it when we
+# continue working on the project at a later time.
+
+## **Go to OTHER First Project Word Document**
+
+# 3. Place Graphs in panals
+
+
+# 4. Supply summary statistics
+
+
+
+

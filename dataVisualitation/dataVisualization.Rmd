@@ -1,0 +1,39 @@
+---
+title: "DataVisualization"
+author: "Omar Godinez"
+date: "2/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Visualization
+```{r}
+library(ggplot2)
+library(dplyr)
+View(mpg)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+# 1.Run ggplot(data = mpg). What do you see?
+```{r}
+ggplot(data = mpg)
+```
+Nothing, just a gray square.
+
+# 2.Make a scatterplot of hwy vs cyl
+```{r}
+ggplot(data = mpg) + geom_point(aes(x = cyl, y = hwy))
+```
+
+# 3.What happens if you make a scatterplot of class vs drv? Why is the plot not useful?
+```{r}
+ggplot(data = mpg) + geom_point(aes(x = class, y = drv))
+```
+Because, both variables are qualitative. 

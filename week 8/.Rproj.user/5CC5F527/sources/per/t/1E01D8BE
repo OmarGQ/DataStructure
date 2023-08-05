@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1691250403128.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1E01D8BE",
+    "lastKnownWriteTime" : 2037097675296,
+    "last_content_update" : 1691250403128,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "EBAB6E22",
+        "caption" : "iris",
+        "contentUrl" : "grid_resource/gridviewer.html?env=package%3Adatasets&obj=iris&cache_key=EBAB6E22",
+        "displayedObservations" : 150,
+        "environment" : "package:datasets",
+        "object" : "iris",
+        "preview" : 0,
+        "totalObservations" : 150,
+        "variables" : 5
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
